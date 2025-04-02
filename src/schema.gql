@@ -1,0 +1,51 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Room {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type Reservation {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type Query {
+  rooms: [Room!]!
+  room(id: Int!): Room!
+  reservations: [Reservation!]!
+  reservation(id: Int!): Reservation!
+}
+
+type Mutation {
+  createRoom(createRoomInput: CreateRoomInput!): Room!
+  updateRoom(updateRoomInput: UpdateRoomInput!): Room!
+  removeRoom(id: Int!): Room!
+  createReservation(createReservationInput: CreateReservationInput!): Reservation!
+  updateReservation(updateReservationInput: UpdateReservationInput!): Reservation!
+  removeReservation(id: Int!): Reservation!
+}
+
+input CreateRoomInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateRoomInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateReservationInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateReservationInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
