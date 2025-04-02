@@ -1,8 +1,10 @@
+import { IsUUID } from 'class-validator';
 import { CreateRoomInput } from './create-room.input';
-import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
+import { InputType, Field, PartialType, ID } from '@nestjs/graphql';
 
 @InputType()
 export class UpdateRoomInput extends PartialType(CreateRoomInput) {
-  @Field(() => Int)
-  id: number;
+  @Field(() => ID)
+  @IsUUID()
+  id: string;
 }

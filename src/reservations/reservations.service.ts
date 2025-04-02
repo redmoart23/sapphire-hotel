@@ -1,15 +1,15 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { CreateReservationInput } from './dto/create-reservation.input';
 import { UpdateReservationInput } from './dto/update-reservation.input';
 import { PrismaClient } from '@prisma/client';
+import { CreateReservationInput } from './dto/create-reservation.input';
 @Injectable()
 export class ReservationsService extends PrismaClient implements OnModuleInit {
   async onModuleInit() {
     await this.$connect();
   }
 
-  create(createReservationInput: CreateReservationInput) {
-    return createReservationInput;
+  async create(createReservationInput: CreateReservationInput) {
+    return await this.reservation.create({ data: createReservationInput });
   }
 
   findAll() {
