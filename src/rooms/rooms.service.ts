@@ -1,11 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
 import { CreateRoomInput } from './dto/create-room.input';
 import { UpdateRoomInput } from './dto/update-room.input';
 
 @Injectable()
-export class RoomsService {
+export class RoomsService extends PrismaClient implements OnModuleInit {
+  async onModuleInit() {
+    await this.$connect();
+  }
+
   create(createRoomInput: CreateRoomInput) {
-    return 'This action adds a new room';
+    return createRoomInput;
   }
 
   findAll() {
@@ -17,7 +22,9 @@ export class RoomsService {
   }
 
   update(id: number, updateRoomInput: UpdateRoomInput) {
-    return `This action updates a #${id} room`;
+    return {
+      ...updateRoomInput,
+    };
   }
 
   remove(id: number) {
