@@ -53,6 +53,7 @@ model Room {
   roomDesc     String?
   roomType     RoomType
   capacity     RoomCapacity
+  outsideView  Boolean
   roomPrice    Int
   status       RoomStatus    @default(AVAILABLE)
   reservations Reservation[]

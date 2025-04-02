@@ -1,25 +1,30 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { RoomsService } from './rooms.service';
-import { Room } from './entities/room.entity';
 import { CreateRoomInput } from './dto/create-room.input';
 import { UpdateRoomInput } from './dto/update-room.input';
+import { Room } from './entities/room.entity';
+import { ParseUUIDPipe } from '@nestjs/common';
 
 @Resolver(() => Room)
 export class RoomsResolver {
   constructor(private readonly roomsService: RoomsService) {}
 
   @Mutation(() => Room)
-  createRoom(@Args('createRoomInput') createRoomInput: CreateRoomInput) {
-    return this.roomsService.create(createRoomInput);
+  async createRoom(
+    @Args('createRoomInput') createRoomInput: CreateRoomInput,
+  ): Promise<Room> {
+    return await this.roomsService.create(createRoomInput);
   }
 
   @Query(() => [Room], { name: 'rooms' })
-  findAll() {
+  async findAll(): Promise<Room[]> {
     return this.roomsService.findAll();
   }
 
   @Query(() => Room, { name: 'room' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
+  findOne(
+    @Args('id', { type: () => ID }, ParseUUIDPipe) id: string,
+  ): Promise<Room> {
     return this.roomsService.findOne(id);
   }
 
@@ -29,7 +34,7 @@ export class RoomsResolver {
   }
 
   @Mutation(() => Room)
-  removeRoom(@Args('id', { type: () => Int }) id: number) {
+  removeRoom(@Args('id', { type: () => ID }, ParseUUIDPipe) id: string) {
     return this.roomsService.remove(id);
   }
 }

@@ -1,5 +1,5 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { PrismaClient, Room } from '@prisma/client';
 import { CreateRoomInput } from './dto/create-room.input';
 import { UpdateRoomInput } from './dto/update-room.input';
 
@@ -9,25 +9,33 @@ export class RoomsService extends PrismaClient implements OnModuleInit {
     await this.$connect();
   }
 
-  create(createRoomInput: CreateRoomInput) {
-    return createRoomInput;
+  async create(createRoomInput: CreateRoomInput): Promise<Room> {
+    return await this.room.create({ data: createRoomInput });
   }
 
-  findAll() {
-    return `This action returns all rooms`;
+  async findAll(): Promise<Room[]> {
+    return await this.room.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} room`;
+  async findOne(id: string): Promise<Room> {
+    const room = await this.room.findUnique({ where: { id } });
+    if (!room) {
+      throw new NotFoundException('Room not found');
+    }
+
+    return room;
   }
 
-  update(id: number, updateRoomInput: UpdateRoomInput) {
-    return {
-      ...updateRoomInput,
-    };
+  async update(id: string, updateRoomInput: UpdateRoomInput): Promise<Room> {
+    await this.findOne(id);
+    return await this.room.update({ where: { id }, data: updateRoomInput });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} room`;
+  async remove(id: string): Promise<string> {
+    await this.findOne(id);
+
+    await this.room.delete({ where: { id } });
+
+    return `Room with id: ${id} deleted`;
   }
 }
