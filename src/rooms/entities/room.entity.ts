@@ -4,12 +4,12 @@ import {
   ID,
   Float,
   registerEnumType,
+  Int,
 } from '@nestjs/graphql';
-import { RoomType, RoomStatus, RoomCapacity } from '@prisma/client';
+import { RoomType, RoomStatus } from '@prisma/client';
 import { Reservation } from 'src/reservations/entities/reservation.entity';
 
 registerEnumType(RoomType, { name: 'RoomType' });
-registerEnumType(RoomCapacity, { name: 'RoomCapacity' });
 registerEnumType(RoomStatus, { name: 'RoomStatus' });
 
 @ObjectType()
@@ -26,11 +26,14 @@ export class Room {
   @Field(() => RoomType)
   roomType: RoomType;
 
-  @Field(() => RoomCapacity)
-  capacity: RoomCapacity;
+  @Field(() => Int)
+  roomCapacity: number;
 
   @Field(() => Float)
   roomPrice: number;
+
+  @Field(() => Boolean)
+  outsideView: boolean;
 
   @Field(() => RoomStatus)
   status: RoomStatus;

@@ -1,5 +1,5 @@
 import { InputType, Field, Int } from '@nestjs/graphql';
-import { RoomType, RoomCapacity, RoomStatus } from '@prisma/client';
+import { RoomType, RoomStatus } from '@prisma/client';
 import {
   IsBoolean,
   IsEnum,
@@ -23,9 +23,8 @@ export class CreateRoomInput {
   @IsEnum(RoomType)
   roomType: RoomType;
 
-  @Field(() => RoomCapacity)
-  @IsEnum(RoomCapacity)
-  capacity: RoomCapacity;
+  @Field(() => Int)
+  roomCapacity: number;
 
   @Field(() => Boolean)
   @IsBoolean()
