@@ -2,6 +2,7 @@ import 'dotenv/config';
 import * as joi from 'joi';
 
 interface EnvVars {
+  NODE_ENV: string;
   PORT: number;
   POSTGRES_DB_USER: string;
   POSTGRES_DB_PASSWORD: string;
@@ -12,6 +13,7 @@ interface EnvVars {
 
 const envsSchema = joi
   .object({
+    NODE_ENV: joi.string().valid('dev', 'prod').required(),
     PORT: joi.number().required(),
     POSTGRES_DB_USER: joi.string().required(),
     POSTGRES_DB_PASSWORD: joi.string().required(),
@@ -30,6 +32,7 @@ if (error) {
 const envVars: EnvVars = value;
 
 export const envs = {
+  nodeEnv: envVars.NODE_ENV,
   port: envVars.PORT,
   dbUser: envVars.POSTGRES_DB_USER,
   dbPassword: envVars.POSTGRES_DB_PASSWORD,

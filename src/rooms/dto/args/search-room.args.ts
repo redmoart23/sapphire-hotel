@@ -1,9 +1,8 @@
-import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
-import { RoomCapacity, RoomType } from '@prisma/client';
+import { ArgsType, Field, Int, registerEnumType } from '@nestjs/graphql';
+import { RoomType } from '@prisma/client';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 registerEnumType(RoomType, { name: 'RoomType' });
-registerEnumType(RoomCapacity, { name: 'RoomCapacity' });
 
 @ArgsType()
 export class SearchRoomArgs {
@@ -15,9 +14,9 @@ export class SearchRoomArgs {
   @IsNotEmpty()
   endDate: Date;
 
-  @Field(() => RoomCapacity)
+  @Field(() => Int)
   @IsNotEmpty()
-  capacity: RoomCapacity;
+  roomCapacity: number;
 
   @Field(() => RoomType, { nullable: true })
   @IsOptional()

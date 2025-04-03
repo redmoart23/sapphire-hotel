@@ -17,7 +17,9 @@ export class RoomsService extends PrismaClient implements OnModuleInit {
   async findAll(searchRoomArgs: SearchRoomArgs): Promise<Room[]> {
     const rooms = await this.room.findMany({
       where: {
-        capacity: searchRoomArgs.capacity,
+        roomCapacity: {
+          gte: searchRoomArgs.roomCapacity,
+        },
         roomType: searchRoomArgs.roomType,
         outsideView: searchRoomArgs.outsideView,
         NOT: {

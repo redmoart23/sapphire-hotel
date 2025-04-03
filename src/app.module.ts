@@ -5,6 +5,8 @@ import { RoomsModule } from './rooms/rooms.module';
 import { join } from 'path';
 import { ReservationsModule } from './reservations/reservations.module';
 import { UsersModule } from './users/users.module';
+import { SeedModule } from './seed/seed.module';
+
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -14,6 +16,7 @@ import { UsersModule } from './users/users.module';
     RoomsModule,
     ReservationsModule,
     UsersModule,
+    SeedModule,
   ],
 })
 export class AppModule {}
