@@ -4,6 +4,7 @@ import { CreateRoomInput } from './dto/create-room.input';
 import { UpdateRoomInput } from './dto/update-room.input';
 import { Room } from './entities/room.entity';
 import { ParseUUIDPipe } from '@nestjs/common';
+import { SearchRoomArgs } from './dto/args/search-room.args';
 
 @Resolver(() => Room)
 export class RoomsResolver {
@@ -17,8 +18,8 @@ export class RoomsResolver {
   }
 
   @Query(() => [Room], { name: 'rooms' })
-  async findAll(): Promise<Room[]> {
-    return this.roomsService.findAll();
+  async findAll(@Args() searchRoomArgs: SearchRoomArgs): Promise<Room[]> {
+    return this.roomsService.findAll(searchRoomArgs);
   }
 
   @Query(() => Room, { name: 'room' })
