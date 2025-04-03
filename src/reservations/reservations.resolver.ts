@@ -1,28 +1,29 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql';
 import { ReservationsService } from './reservations.service';
-import { Reservation } from './entities/reservation.entity';
 import { CreateReservationInput } from './dto/create-reservation.input';
 import { UpdateReservationInput } from './dto/update-reservation.input';
+import { Reservation } from './entities/reservation.entity';
+import { ParseUUIDPipe } from '@nestjs/common';
 
 @Resolver(() => Reservation)
 export class ReservationsResolver {
   constructor(private readonly reservationsService: ReservationsService) {}
 
   @Mutation(() => Reservation)
-  createReservation(
+  async createReservation(
     @Args('createReservationInput')
     createReservationInput: CreateReservationInput,
-  ) {
-    return this.reservationsService.create(createReservationInput);
+  ): Promise<Reservation> {
+    return await this.reservationsService.create(createReservationInput);
   }
 
   @Query(() => [Reservation], { name: 'reservations' })
-  findAll() {
+  async findAll(): Promise<Reservation[]> {
     return this.reservationsService.findAll();
   }
 
   @Query(() => Reservation, { name: 'reservation' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
+  findOne(@Args('id', { type: () => ID }, ParseUUIDPipe) id: string) {
     return this.reservationsService.findOne(id);
   }
 

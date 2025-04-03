@@ -12,11 +12,21 @@ type User {
 
 type Reservation {
   id: String!
+  roomId: ID!
+  userId: ID!
   room: Room!
   user: User!
   startDate: DateTime!
   endDate: DateTime!
   status: ReservationStatus!
+  guests: Int!
+  totalNights: Int!
+  totalWeekendPairs: Int!
+  basePrice: Int!
+  totalPrice: Int!
+  discount: Int!
+  hasDiscount: Boolean!
+  hasExtraServices: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -64,10 +74,10 @@ enum RoomStatus {
 }
 
 type Query {
-  rooms: [Room!]!
+  rooms(startDate: DateTime!, endDate: DateTime!, capacity: RoomCapacity!, roomType: RoomType, outsideView: Boolean): [Room!]!
   room(id: ID!): Room!
   reservations: [Reservation!]!
-  reservation(id: Int!): Reservation!
+  reservation(id: ID!): Reservation!
 }
 
 type Mutation {
@@ -104,6 +114,8 @@ input UpdateRoomInput {
 input CreateReservationInput {
   roomId: ID!
   userId: ID!
+  guests: Int!
+  hasExtraServices: Boolean!
   startDate: DateTime!
   endDate: DateTime!
 }
@@ -111,6 +123,8 @@ input CreateReservationInput {
 input UpdateReservationInput {
   roomId: ID
   userId: ID
+  guests: Int
+  hasExtraServices: Boolean
   startDate: DateTime
   endDate: DateTime
   id: Int!

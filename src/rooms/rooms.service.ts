@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { PrismaClient, Room } from '@prisma/client';
 import { CreateRoomInput } from './dto/create-room.input';
 import { UpdateRoomInput } from './dto/update-room.input';
+import { SearchRoomArgs } from './dto/args/search-room.args';
 
 @Injectable()
 export class RoomsService extends PrismaClient implements OnModuleInit {
@@ -13,8 +14,32 @@ export class RoomsService extends PrismaClient implements OnModuleInit {
     return await this.room.create({ data: createRoomInput });
   }
 
-  async findAll(): Promise<Room[]> {
-    return await this.room.findMany();
+  async findAll(searchRoomArgs: SearchRoomArgs): Promise<Room[]> {
+    const rooms = await this.room.findMany({
+      where: {
+        capacity: searchRoomArgs.capacity,
+        roomType: searchRoomArgs.roomType,
+        outsideView: searchRoomArgs.outsideView,
+        NOT: {
+          reservations: {
+            some: {
+              startDate: {
+                gte: searchRoomArgs.startDate,
+              },
+              endDate: {
+                lte: searchRoomArgs.endDate,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (rooms.length === 0) {
+      throw new NotFoundException('No rooms available');
+    }
+
+    return rooms;
   }
 
   async findOne(id: string): Promise<Room> {
@@ -36,6 +61,6 @@ export class RoomsService extends PrismaClient implements OnModuleInit {
 
     await this.room.delete({ where: { id } });
 
-    return `Room with id: ${id} deleted`;
+    return `Room with deleted`;
   }
 }

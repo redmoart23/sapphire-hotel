@@ -24,17 +24,17 @@ enum RoomStatus {
   UNAVAILABLE
 }
 
-enum ReservationStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-}
-
 enum RoomCapacity {
   ONE
   TWO
   THREE
   FOUR
+}
+
+enum ReservationStatus {
+  PAST
+  ONGOING
+  FUTURE
 }
 
 model User {
@@ -62,14 +62,22 @@ model Room {
 }
 
 model Reservation {
-  id        String            @id @default(uuid())
-  roomId    String
-  userId    String
-  room      Room              @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  startDate DateTime
-  endDate   DateTime
-  status    ReservationStatus @default(PENDING)
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id                String            @id @default(uuid())
+  roomId            String
+  userId            String
+  room              Room              @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startDate         DateTime
+  endDate           DateTime
+  status            ReservationStatus @default(FUTURE)
+  guests            Int
+  totalNights       Int
+  totalWeekendPairs Int
+  basePrice         Int
+  totalPrice        Int
+  discount          Int
+  hasDiscount       Boolean
+  hasExtraServices  Boolean
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }
