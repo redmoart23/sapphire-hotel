@@ -38,6 +38,9 @@ export class Reservation {
   totalNights: number;
 
   @Field(() => Int)
+  totalDays: number;
+
+  @Field(() => Int)
   totalWeekendPairs: number;
 
   @Field(() => Int)
@@ -48,6 +51,12 @@ export class Reservation {
 
   @Field(() => Int)
   discount: number;
+
+  @Field(() => Int)
+  weekendSurcharge: number;
+
+  @Field(() => Int)
+  extraServicesFee: number;
 
   @Field(() => Boolean)
   hasDiscount: boolean;

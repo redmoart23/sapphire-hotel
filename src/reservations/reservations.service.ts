@@ -1,6 +1,11 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { UpdateReservationInput } from './dto/update-reservation.input';
-import { PrismaClient, RoomStatus } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { CreateReservationInput } from './dto/create-reservation.input';
 import { getTotalNightsAndWeekendDays } from './utils/get-total-nights-and-weekend-days';
 import { reservationPriceCalculator } from './utils/reservation-price-calculator';
@@ -25,19 +30,38 @@ export class ReservationsService extends PrismaClient implements OnModuleInit {
       throw new NotFoundException('Room not found');
     }
 
-    //TODO: Manage room exceptions
-
-    //TODO: Check if room is available by dates
-    if (room.status !== 'AVAILABLE') {
-      throw new Error('Room is not available');
-    }
-
-    const { totalNights, totalWeekendPairs } = getTotalNightsAndWeekendDays(
+    const isAvailable = await this.isRoomAvailable(
+      createReservationInput.roomId,
       createReservationInput.startDate,
       createReservationInput.endDate,
     );
 
-    const { basePrice, discount, totalPrice } = reservationPriceCalculator(
+    // Validate room capacity
+    if (createReservationInput.guests > room.roomCapacity) {
+      throw new BadRequestException(
+        'Room capacity is not enough for the number of guests',
+      );
+    }
+
+    if (!isAvailable) {
+      throw new BadRequestException(
+        'Room is not available for the specified dates',
+      );
+    }
+
+    const { totalNights, totalDays, totalWeekendPairs } =
+      getTotalNightsAndWeekendDays(
+        createReservationInput.startDate,
+        createReservationInput.endDate,
+      );
+
+    const {
+      basePrice,
+      discount,
+      extraServicesFee,
+      weekendSurcharge,
+      totalPrice,
+    } = reservationPriceCalculator(
       createReservationInput,
       room,
       totalNights,
@@ -48,61 +72,35 @@ export class ReservationsService extends PrismaClient implements OnModuleInit {
       data: {
         ...createReservationInput,
         roomId: createReservationInput.roomId,
-        totalNights: totalNights,
-        totalWeekendPairs: totalWeekendPairs,
-        basePrice: basePrice,
-        hasDiscount: discount > 0,
-        discount: discount,
-        totalPrice: totalPrice,
         userId: createReservationInput.userId,
+        totalNights,
+        totalDays,
+        totalWeekendPairs,
+        basePrice,
+        discount,
+        extraServicesFee,
+        weekendSurcharge,
+        totalPrice,
+        hasDiscount: discount > 0,
+      },
+      include: {
+        room: true,
+        user: true,
       },
     });
 
-    const userUpdated = await this.user.update({
-      where: {
-        id: createReservationInput.userId,
-      },
-      data: {
-        reservations: {
-          connect: {
-            id: reservation.id,
-          },
-        },
-      },
-    });
-
-    const roomUpdated = await this.room.update({
-      where: {
-        id: createReservationInput.roomId,
-      },
-      data: {
-        status: RoomStatus.AVAILABLE,
-      },
-    });
-
-    return {
-      ...reservation,
-      user: userUpdated,
-      room: roomUpdated,
-    } as Reservation;
+    return reservation;
   }
 
   async findAll(): Promise<Reservation[]> {
-    const reservations = await this.reservation.findMany();
+    const reservations = await this.reservation.findMany({
+      include: {
+        room: true,
+        user: true,
+      },
+    });
 
-    return reservations.map((reservation) => ({
-      ...reservation,
-      room: this.room.findUnique({
-        where: {
-          id: reservation.roomId,
-        },
-      }),
-      user: this.user.findUnique({
-        where: {
-          id: reservation.userId,
-        },
-      }),
-    })) as unknown as Reservation[];
+    return reservations;
   }
 
   async findOne(id: string): Promise<Reservation> {
@@ -110,29 +108,17 @@ export class ReservationsService extends PrismaClient implements OnModuleInit {
       where: {
         id,
       },
+      include: {
+        room: true,
+        user: true,
+      },
     });
 
     if (!reservation) {
       throw new NotFoundException('Reservation not found');
     }
 
-    const room = await this.room.findUnique({
-      where: {
-        id: reservation.roomId,
-      },
-    });
-
-    const user = await this.user.findUnique({
-      where: {
-        id: reservation.userId,
-      },
-    });
-
-    return {
-      ...reservation,
-      room: room,
-      user: user,
-    } as unknown as Reservation;
+    return reservation;
   }
 
   update(id: number, updateReservationInput: UpdateReservationInput) {
@@ -141,7 +127,39 @@ export class ReservationsService extends PrismaClient implements OnModuleInit {
     };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} reservation`;
+  async cancel(id: string): Promise<string> {
+    await this.reservation.delete({
+      where: {
+        id,
+      },
+      include: {
+        room: true,
+        user: true,
+      },
+    });
+
+    return 'Reservation canceled successfully';
+  }
+
+  async isRoomAvailable(
+    roomId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<boolean> {
+    const overlappingReservations = await this.reservation.findMany({
+      where: {
+        roomId,
+        AND: [
+          {
+            startDate: { lte: endDate },
+          },
+          {
+            endDate: { gte: startDate },
+          },
+        ],
+      },
+    });
+
+    return overlappingReservations.length === 0;
   }
 }

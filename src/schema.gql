@@ -21,10 +21,13 @@ type Reservation {
   status: ReservationStatus!
   guests: Int!
   totalNights: Int!
+  totalDays: Int!
   totalWeekendPairs: Int!
   basePrice: Int!
   totalPrice: Int!
   discount: Int!
+  weekendSurcharge: Int!
+  extraServicesFee: Int!
   hasDiscount: Boolean!
   hasExtraServices: Boolean!
   createdAt: DateTime!
@@ -80,7 +83,7 @@ type Mutation {
   removeRoom(id: ID!): Room!
   createReservation(createReservationInput: CreateReservationInput!): Reservation!
   updateReservation(updateReservationInput: UpdateReservationInput!): Reservation!
-  removeReservation(id: Int!): Reservation!
+  cancelReservation(id: String!): Reservation!
   createUser(createUserInput: CreateUserInput!): User!
   executeSeed: Boolean!
 }

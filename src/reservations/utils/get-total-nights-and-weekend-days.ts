@@ -1,41 +1,58 @@
+import { BadRequestException } from '@nestjs/common';
+
 export function getTotalNightsAndWeekendDays(
   startDate: Date,
   endDate: Date,
-): { totalNights: number; totalWeekendPairs: number } {
-  if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
+): {
+  totalNights: number;
+  totalDays: number;
+  totalWeekendPairs: number;
+} {
+  if (
+    !(startDate instanceof Date) ||
+    isNaN(startDate.getTime()) ||
+    !(endDate instanceof Date) ||
+    isNaN(endDate.getTime())
+  ) {
     throw new Error('Invalid date format');
   }
 
-  // Calculate total nights
-  const totalNights = Math.max(
-    0,
-    Math.floor(
-      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
-    ),
-  );
+  startDate.setHours(startDate.getHours() + 6); // Set start time to 6 AM
 
-  // Calculate total weekend pairs
+  endDate.setHours(endDate.getHours() + 18); // Set end time to 6 PM
+
+  if (endDate <= startDate) {
+    throw new BadRequestException('End date must be greater than start date');
+  }
+
+  const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+  const diffMs = endDate.getTime() - startDate.getTime();
+
+  const totalDays = diffMs / MS_PER_DAY;
+  const totalNights = Math.floor(totalDays);
+
   let weekendPairs = 0;
-  const currentDate = new Date(startDate);
+  const current = new Date(startDate);
 
-  while (currentDate < endDate) {
-    const day = currentDate.getDay(); // 5 = Friday, 6 = Saturday
+  // Get weekend pairs
+  while (current < endDate) {
+    const day = current.getDay();
 
-    // Check for Friday-Saturday or Saturday-Sunday transition
-    if (day === 5 && currentDate.getTime() + 86400000 < endDate.getTime()) {
-      // Friday → Saturday
-      weekendPairs++;
-    } else if (
-      day === 6 &&
-      currentDate.getTime() + 86400000 < endDate.getTime()
-    ) {
-      // Saturday → Sunday
+    // Check Friday→Saturday or Saturday→Sunday
+    const nextDay = new Date(current.getTime() + MS_PER_DAY);
+    if (nextDay > endDate) break;
+
+    if ((day === 5 || day === 6) && nextDay.getDay() === (day + 1) % 7) {
       weekendPairs++;
     }
 
-    // Move to the next day
-    currentDate.setDate(currentDate.getDate() + 1);
+    current.setDate(current.getDate() + 1);
   }
 
-  return { totalNights, totalWeekendPairs: weekendPairs };
+  return {
+    totalNights,
+    totalDays: Math.ceil(totalDays),
+    totalWeekendPairs: weekendPairs,
+  };
 }
