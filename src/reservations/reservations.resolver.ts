@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { ReservationsService } from './reservations.service';
 import { CreateReservationInput } from './dto/create-reservation.input';
 import { UpdateReservationInput } from './dto/update-reservation.input';
@@ -39,7 +39,9 @@ export class ReservationsResolver {
   }
 
   @Mutation(() => Reservation)
-  removeReservation(@Args('id', { type: () => Int }) id: number) {
-    return this.reservationsService.remove(id);
+  cancelReservation(
+    @Args('id', { type: () => String }, ParseUUIDPipe) id: string,
+  ): Promise<string> {
+    return this.reservationsService.cancel(id);
   }
 }

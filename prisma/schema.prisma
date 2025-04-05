@@ -72,10 +72,13 @@ model Reservation {
   status            ReservationStatus @default(FUTURE)
   guests            Int
   totalNights       Int
+  totalDays         Int
   totalWeekendPairs Int
   basePrice         Int
   totalPrice        Int
   discount          Int
+  extraServicesFee  Int
+  weekendSurcharge  Int
   hasDiscount       Boolean
   hasExtraServices  Boolean
   createdAt         DateTime          @default(now())

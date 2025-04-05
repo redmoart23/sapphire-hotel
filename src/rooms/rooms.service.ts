@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { PrismaClient, Room } from '@prisma/client';
 import { CreateRoomInput } from './dto/create-room.input';
 import { UpdateRoomInput } from './dto/update-room.input';
@@ -15,6 +20,12 @@ export class RoomsService extends PrismaClient implements OnModuleInit {
   }
 
   async findAll(searchRoomArgs: SearchRoomArgs): Promise<Room[]> {
+    const { startDate, endDate } = searchRoomArgs;
+
+    if (startDate > endDate) {
+      throw new BadRequestException('Start date must be before end date');
+    }
+
     const rooms = await this.room.findMany({
       where: {
         roomCapacity: {
@@ -22,18 +33,9 @@ export class RoomsService extends PrismaClient implements OnModuleInit {
         },
         roomType: searchRoomArgs.roomType,
         outsideView: searchRoomArgs.outsideView,
-        NOT: {
-          reservations: {
-            some: {
-              startDate: {
-                gte: searchRoomArgs.startDate,
-              },
-              endDate: {
-                lte: searchRoomArgs.endDate,
-              },
-            },
-          },
-        },
+      },
+      include: {
+        reservations: true,
       },
     });
 
@@ -45,7 +47,10 @@ export class RoomsService extends PrismaClient implements OnModuleInit {
   }
 
   async findOne(id: string): Promise<Room> {
-    const room = await this.room.findUnique({ where: { id } });
+    const room = await this.room.findUnique({
+      where: { id },
+      include: { reservations: true },
+    });
     if (!room) {
       throw new NotFoundException('Room not found');
     }

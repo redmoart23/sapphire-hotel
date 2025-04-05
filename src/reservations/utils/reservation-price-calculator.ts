@@ -7,36 +7,40 @@ export function reservationPriceCalculator(
   totalNights: number,
   totalWeekendPairs: number,
 ) {
-  let basePrice = room.roomPrice;
-  let discount = 0;
+  const { hasExtraServices, guests } = createReservationInput;
+  const nightlyRate = room.roomPrice;
 
-  // Apply discounts based on stay duration
-  if (totalNights >= 4 && totalNights <= 6) {
-    discount = 10000 * totalNights;
-    basePrice = room.roomPrice * totalNights - discount;
-  } else if (totalNights >= 7 && totalNights <= 9) {
-    discount = 20000 * totalNights;
-    basePrice = room.roomPrice * totalNights - discount;
-  } else if (totalNights >= 10) {
-    discount = 30000 * totalNights;
-    basePrice = room.roomPrice * totalNights - discount;
+  const basePrice = nightlyRate * totalNights;
+
+  // Calculate discount based on the number of nights
+  let discountPerNight = 0;
+  if (totalNights >= 10) {
+    discountPerNight = 30000;
+  } else if (totalNights >= 7) {
+    discountPerNight = 20000;
+  } else if (totalNights >= 4) {
+    discountPerNight = 10000;
   }
 
-  // Calculate initial total price
-  let totalPrice = basePrice;
+  // Calculate total discount
+  const discount = discountPerNight * totalNights;
+  const basePriceWithDiscount = basePrice - discount;
 
-  // Apply extra services fee if requested
-  if (createReservationInput.hasExtraServices) {
-    totalPrice += 25000 * createReservationInput.guests * totalNights;
-  }
+  // Calculate extra services fee if applicable
+  const extraServicesFee = hasExtraServices ? 25000 * guests * totalNights : 0;
 
-  // Apply weekend pricing adjustment
-  if (totalWeekendPairs > 0) {
-    // 20% premium for weekend stays
-    const weekendSurcharge = room.roomPrice * 0.2 * totalWeekendPairs;
+  // Calculate weekend surcharge
+  const weekendSurcharge = nightlyRate * 0.2 * totalWeekendPairs;
 
-    totalPrice += weekendSurcharge;
-  }
+  // Calculate total price
+  const totalPrice =
+    basePriceWithDiscount + extraServicesFee + weekendSurcharge;
 
-  return { basePrice, discount, totalPrice };
+  return {
+    basePrice,
+    discount,
+    extraServicesFee,
+    weekendSurcharge,
+    totalPrice,
+  };
 }
