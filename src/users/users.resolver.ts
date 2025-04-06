@@ -7,7 +7,10 @@ import { CreateUserInput } from './dto/create-user.input';
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Mutation(() => User)
+  @Mutation(() => User, {
+    name: 'createUser',
+    description: 'Create a new user',
+  })
   createUser(
     @Args('createUserInput') createUserInput: CreateUserInput,
   ): Promise<User> {
