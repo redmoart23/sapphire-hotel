@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { Reservation } from 'src/reservations/entities/reservation.entity';
+import { Reservation } from '../../reservations/entities/reservation.entity';
 
 @ObjectType()
 export class User {

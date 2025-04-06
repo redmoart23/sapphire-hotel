@@ -1,9 +1,9 @@
+import { ParseUUIDPipe } from '@nestjs/common';
 import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
+import { Reservation } from './entities/reservation.entity';
 import { ReservationsService } from './reservations.service';
 import { CreateReservationInput } from './dto/create-reservation.input';
 import { UpdateReservationInput } from './dto/update-reservation.input';
-import { Reservation } from './entities/reservation.entity';
-import { ParseUUIDPipe } from '@nestjs/common';
 
 @Resolver(() => Reservation)
 export class ReservationsResolver {

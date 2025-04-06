@@ -11,7 +11,7 @@ RUN npm install
 # 2. Build
 FROM node:21-alpine3.19 as build
 
-ARG ORDERS_DATABASE_URL
+ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
 
 WORKDIR /usr/src/app
