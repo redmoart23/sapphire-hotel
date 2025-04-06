@@ -71,20 +71,46 @@ enum RoomStatus {
 }
 
 type Query {
+  """Get all rooms"""
   rooms(startDate: DateTime!, endDate: DateTime!, roomCapacity: Int!, roomType: RoomType, outsideView: Boolean): [Room!]!
+
+  """Get a room by id"""
   room(id: ID!): Room!
+
+  """Get all reservations"""
   reservations: [Reservation!]!
+
+  """Get a reservation by id"""
   reservation(id: ID!): Reservation!
 }
 
 type Mutation {
+  """Create a new room"""
   createRoom(createRoomInput: CreateRoomInput!): Room!
+
+  """Update a room"""
   updateRoom(updateRoomInput: UpdateRoomInput!): Room!
+
+  """Make room unavailable"""
   removeRoom(id: ID!): Room!
+
+  """
+  Create a new reservation for a room based on the roomId,userId, gests, and dates
+  """
   createReservation(createReservationInput: CreateReservationInput!): Reservation!
+
+  """Update a reservation by id"""
   updateReservation(updateReservationInput: UpdateReservationInput!): Reservation!
+
+  """Cancel a reservation by id"""
   cancelReservation(id: String!): Reservation!
+
+  """Create a new user"""
   createUser(createUserInput: CreateUserInput!): User!
+
+  """
+  Execute the seed process, populating the database with initial user and rooms data
+  """
   executeSeed: Boolean!
 }
 

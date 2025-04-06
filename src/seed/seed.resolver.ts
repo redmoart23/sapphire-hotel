@@ -6,7 +6,11 @@ import { Seed } from './entities/seed.entity';
 export class SeedResolver {
   constructor(private readonly seedService: SeedService) {}
 
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, {
+    name: 'executeSeed',
+    description:
+      'Execute the seed process, populating the database with initial user and rooms data',
+  })
   async executeSeed(): Promise<boolean> {
     return this.seedService.executeSeed();
   }
