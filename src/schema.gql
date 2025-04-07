@@ -82,6 +82,18 @@ type Query {
 
   """Get a reservation by id"""
   reservation(id: ID!): Reservation!
+
+  """Get the total price of a reservation"""
+  getReservationPrice(getReservationPriceInput: CreateReservationInput!): Reservation!
+}
+
+input CreateReservationInput {
+  roomId: ID!
+  userId: ID!
+  guests: Int!
+  hasExtraServices: Boolean!
+  startDate: DateTime!
+  endDate: DateTime!
 }
 
 type Mutation {
@@ -103,7 +115,7 @@ type Mutation {
   updateReservation(updateReservationInput: UpdateReservationInput!): Reservation!
 
   """Cancel a reservation by id"""
-  cancelReservation(id: String!): Reservation!
+  cancelReservation(id: String!): String!
 
   """Create a new user"""
   createUser(createUserInput: CreateUserInput!): User!
@@ -133,15 +145,6 @@ input UpdateRoomInput {
   roomPrice: Int
   status: RoomStatus = AVAILABLE
   id: ID!
-}
-
-input CreateReservationInput {
-  roomId: ID!
-  userId: ID!
-  guests: Int!
-  hasExtraServices: Boolean!
-  startDate: DateTime!
-  endDate: DateTime!
 }
 
 input UpdateReservationInput {
