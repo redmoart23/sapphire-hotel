@@ -113,8 +113,6 @@ type Mutation {
 
   """Update a reservation by id"""
   updateReservation(updateReservationInput: UpdateReservationInput!): Reservation!
-
-  """Cancel a reservation by id"""
   cancelReservation(id: String!): String!
 
   """Create a new user"""
