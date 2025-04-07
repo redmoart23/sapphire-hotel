@@ -36,16 +36,15 @@ export class ReservationsService extends PrismaClient implements OnModuleInit {
       createReservationInput.endDate,
     );
 
-    // Validate room capacity
-    if (createReservationInput.guests > room.roomCapacity) {
-      throw new BadRequestException(
-        'Room capacity is not enough for the number of guests',
-      );
-    }
-
     if (!isAvailable) {
       throw new BadRequestException(
         'Room is not available for the specified dates',
+      );
+    }
+
+    if (createReservationInput.guests > room.roomCapacity) {
+      throw new BadRequestException(
+        'Room capacity is not enough for the number of guests',
       );
     }
 
@@ -139,6 +138,58 @@ export class ReservationsService extends PrismaClient implements OnModuleInit {
     });
 
     return 'Reservation canceled successfully';
+  }
+
+  async calculateReservationPrice(
+    createReservationInput: CreateReservationInput,
+  ): Promise<{
+    basePrice: number;
+    discount: number;
+    extraServicesFee: number;
+    weekendSurcharge: number;
+    totalPrice: number;
+  }> {
+    const room = await this.room.findUnique({
+      where: {
+        id: createReservationInput.roomId,
+      },
+    });
+
+    if (!room) {
+      throw new NotFoundException('Room not found');
+    }
+
+    if (createReservationInput.guests > room.roomCapacity) {
+      throw new BadRequestException(
+        'Room capacity is not enough for the number of guests',
+      );
+    }
+
+    const { totalNights, totalWeekendPairs } = getTotalNightsAndWeekendDays(
+      createReservationInput.startDate,
+      createReservationInput.endDate,
+    );
+
+    const {
+      basePrice,
+      discount,
+      extraServicesFee,
+      weekendSurcharge,
+      totalPrice,
+    } = reservationPriceCalculator(
+      createReservationInput,
+      room,
+      totalNights,
+      totalWeekendPairs,
+    );
+
+    return {
+      basePrice,
+      discount,
+      extraServicesFee,
+      weekendSurcharge,
+      totalPrice,
+    };
   }
 
   async isRoomAvailable(

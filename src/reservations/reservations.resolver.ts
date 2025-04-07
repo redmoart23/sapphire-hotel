@@ -4,6 +4,7 @@ import { Reservation } from './entities/reservation.entity';
 import { ReservationsService } from './reservations.service';
 import { CreateReservationInput } from './dto/create-reservation.input';
 import { UpdateReservationInput } from './dto/update-reservation.input';
+import { GetReservationPriceResponse } from './interfaces/get-reservation-price.interface';
 
 @Resolver(() => Reservation)
 export class ReservationsResolver {
@@ -37,6 +38,19 @@ export class ReservationsResolver {
     return this.reservationsService.findOne(id);
   }
 
+  @Query(() => Reservation, {
+    name: 'getReservationPrice',
+    description: 'Get the total price of a reservation',
+  })
+  getReservationPrice(
+    @Args('getReservationPriceInput')
+    createReservationInput: CreateReservationInput,
+  ): Promise<GetReservationPriceResponse> {
+    return this.reservationsService.calculateReservationPrice(
+      createReservationInput,
+    );
+  }
+
   @Mutation(() => Reservation, {
     name: 'updateReservation',
     description: 'Update a reservation by id',
@@ -51,10 +65,7 @@ export class ReservationsResolver {
     );
   }
 
-  @Mutation(() => Reservation, {
-    name: 'cancelReservation',
-    description: 'Cancel a reservation by id',
-  })
+  @Mutation(() => String)
   cancelReservation(
     @Args('id', { type: () => String }, ParseUUIDPipe) id: string,
   ): Promise<string> {
