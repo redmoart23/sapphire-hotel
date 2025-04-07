@@ -54,7 +54,7 @@ export class ReservationsResolver {
   @Mutation(() => Reservation, {
     name: 'updateReservation',
     description: 'Update a reservation by id',
-  },  )
+  })
   updateReservation(
     @Args('updateReservationInput')
     updateReservationInput: UpdateReservationInput,
