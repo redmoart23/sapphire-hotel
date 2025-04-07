@@ -38,6 +38,8 @@ COPY --from=build /app/node_modules ./node_modules
 
 COPY --from=build /app/dist ./dist
 
+# Crear carpeta tmp para el schema y dar permisos al usuario node
+RUN mkdir -p /app/tmp && chown -R node:node /app/tmp
 
 ENV NODE_ENV=prod
 

@@ -11,8 +11,8 @@ import { envs } from './config/envs';
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      //autoSchemaFile: envs.nodeEnv === 'prod' ? 'schema.gql' : 'src/schema.gql',
-      autoSchemaFile: 'schema.gql',
+      autoSchemaFile:
+        envs.nodeEnv === 'prod' ? 'tmp/schema.gql' : 'src/schema.gql',
       playground: envs.nodeEnv !== 'prod',
     }),
     RoomsModule,
